@@ -11,7 +11,7 @@
     BBPaginator = this.BBPaginator = {};
   }
 
-  BBPaginator.VERSION = "0.0.1";
+  BBPaginator.VERSION = "0.1.0";
 
   BBPaginator.PaginationModel = Backbone.Model.extend({
     defaults: {
@@ -23,8 +23,7 @@
     },
 
     initialize: function() {
-      this.on({
-        "change:numOfRecords change:pageSize": function() {
+      this.on("change:numOfRecords change:pageSize", function() {
           var pageSize = this.get("pageSize"),
             numOfRecords = this.get("numOfRecords"),
             numOfPages = this.get("pageSize") === 0 ? (numOfRecords > 0 ? 1 : 0) : Math.ceil(numOfRecords / pageSize);
@@ -35,7 +34,7 @@
             this.set("page", (numOfPages - 1));
           }
         }
-      });
+      );
     },
 
     validate: function(attrs, options) {
@@ -49,7 +48,7 @@
     }
   });
 
-  BBPaginator.PaginatorView = Backbone.View.extend({
+  var PageSelectorView = BBPaginator.PageSelectorView = Backbone.View.extend({
     tagName: "div",
 
     windowSize: 5,
@@ -77,7 +76,8 @@
     initialize: function(options) {
       options = options || {}
       this.windowSize = options.windowSize || this.windowSize;
-      this.listenTo(this.model, "change", this.render);
+      _.bindAll(this, 'render');
+      this.model.on('change', this.render)
     },
 
     render: function() {
@@ -116,6 +116,8 @@
     },
 
     onClickChangePage: function(ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
       var pageStr = $(ev.target).text().trim();
       var pageIndex = this.convertPageIndex(pageStr);
       this.model.set("page", pageIndex, {validate: true});
@@ -148,7 +150,7 @@
 
   });
 
-  BBPaginator.PaginatorGotoView = Backbone.View.extend({
+  var GotoPageView = BBPaginator.GotoPageView= Backbone.View.extend({
     tagName: "div",
 
     className: "pagination goto",
@@ -161,7 +163,8 @@
     template: _.template("Goto <input type='text' value='<%= page + 1 %>'/> of <%= numOfPages %>"),
 
     initialize: function() {
-      this.listenTo(this.model, "change", this.render);
+      _.bindAll(this, 'render');
+      this.model.on('change', this.render)
     },
 
     render: function() {
@@ -184,7 +187,26 @@
       this.changePage(ev);
     }
   });
- 
+
+  BBPaginator.PaginatorView = Backbone.View.extend({
+    tagName: "div",
+
+    className: "paginator",
+
+    initialize: function() {
+      this.pageSelector = new PageSelectorView({model: this.model}); 
+      this.gotoPage = new GotoPageView({model: this.model}); 
+    },
+
+    render: function() {
+      this.$el.empty();
+      this.$el.append(this.pageSelector.render().el);
+      var gotoEl = this.gotoPage.render().el;
+      $(gotoEl).addClass("pull-right");
+      this.$el.append(this.gotoPage.render().el);
+      return this;
+    }
+  });
 
 }).call(this);
 
