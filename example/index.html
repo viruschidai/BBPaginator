@@ -8,32 +8,27 @@
     <link href="./css/BBPaginator.css" rel="stylesheet">
     <script type='text/javascript' src='./thirdparties/jquery/jquery-1.10.1.min.js'></script>
     <script type='text/javascript' src='./thirdparties/underscore/underscore-min.js'></script>
-    <script type='text/javascript' src='./thirdparties/backbone/backbone-0.9.2.js'></script>
+    <script type='text/javascript' src='./thirdparties/backbone/backbone.js'></script>
     <script type='text/javascript' src='./thirdparties/bootstrap/js/bootstrap.min.js'></script>
-    <script type='text/javascript' src='../src/BBPaginator.js'></script>
+    <!--<script type='text/javascript' src='../src/BBPaginator.js'></script>-->
+    <!--<script type='text/javascript' src='../src/jQuery-paginator.js'></script>-->
+    <script type='text/javascript' src='../build/jQuery-BBPaginator-0.1.0.min.js'></script>
 
 </head>
 <body>
   <div class="container" style="margin:100px">
     <div class="pages">
-      This is on page 1
+      <h1>This is on page 1</h1>
+    </div>
+    <div class="paginator">
     </div>
   </div>
 </body>
 <script type="text/javascript">
-  var pager = new BBPaginator.PaginationModel({
-        page: 0,
-        firstPage: 0,
-        pageSize: 10,
-        numOfPages: 10,
-        numOfRecords: 100
-      });
-
-  var paginator = new BBPaginator.PaginatorView({model: pager});
-  $('.container').append(paginator.render().el);
-
-  pager.on('change:page', function(e, page) {
-    $('.pages').html('This is on page ' + (page + 1));
+  $('.paginator').paginator({
+    onPageChange: function(e, page) {
+      $('.pages h1').html('This is on page ' + (page + 1));
+    }
   });
 </script>
 </html>

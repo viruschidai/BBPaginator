@@ -3,38 +3,52 @@
   * This is a backbone.js based paginator.
   */
 (function() {
-  var BBPaginator;
+  var BBLib;
 
   if (typeof exports !== "undefined") {
-    BBPaginator = exports;
+    BBLib = exports;
   } else {
-    BBPaginator = this.BBPaginator = {};
+    BBLib = this.BBLib = {};
   }
 
-  BBPaginator.VERSION = "0.1.0";
+  BBLib.VERSION = "0.1.0";
 
-  BBPaginator.PaginationModel = Backbone.Model.extend({
+  BBLib.PaginationModel = Backbone.Model.extend({
     defaults: {
       pageSize: 10,
       page: 0,
-      firstPage: 0,
       numOfPages: 0,
       numOfRecords: 0
     },
 
     initialize: function() {
       this.on("change:numOfRecords change:pageSize", function() {
-          var pageSize = this.get("pageSize"),
-            numOfRecords = this.get("numOfRecords"),
-            numOfPages = this.get("pageSize") === 0 ? (numOfRecords > 0 ? 1 : 0) : Math.ceil(numOfRecords / pageSize);
+        var pageSize = this.get("pageSize"),
+          numOfRecords = this.get("numOfRecords"),
+          numOfPages = this.get("pageSize") === 0 ? (numOfRecords > 0 ? 1 : 0) : Math.ceil(numOfRecords / pageSize);
 
-          this.set("numOfPages", numOfPages);
+        this.set("numOfPages", numOfPages);
 
-          if (this.get("page") >= numOfPages) {
-            this.set("page", (numOfPages - 1));
-          }
+        if (this.get("page") >= numOfPages) {
+          this.set("page", (numOfPages - 1));
         }
-      );
+      });
+    },
+
+    queryParamsMap: {},
+
+    toQueryParams: function() {
+      var params = _.extend({}, this.attributes);
+      if (!_.empty(this.queryParamsMap)) {
+        _.each(this.queryParamsMap, function(key, value) {
+          if (! value in this.attributes) {
+            throw new Error(value + " is not a valid property.");
+          };
+          params[key] = this.attributes[value];
+        });
+      };
+
+      return params;
     },
 
     validate: function(attrs, options) {
@@ -48,7 +62,7 @@
     }
   });
 
-  var PageSelectorView = BBPaginator.PageSelectorView = Backbone.View.extend({
+  var PageSelectorView = BBLib.PageSelectorView = Backbone.View.extend({
     tagName: "div",
 
     windowSize: 5,
@@ -150,7 +164,7 @@
 
   });
 
-  var GotoPageView = BBPaginator.GotoPageView= Backbone.View.extend({
+  var GotoPageView = BBLib.GotoPageView= Backbone.View.extend({
     tagName: "div",
 
     className: "pagination goto",
@@ -176,7 +190,7 @@
     changePage: function(ev) {
       var pageStr = $(ev.target).val();
       var pageIndex = +pageStr - 1; 
-      if (_.isNaN(pageIndex) || (pageIndex > (this.model.get('numOfPages') - 1))) {
+      if (_.isNaN(pageIndex) || pageIndex <= 0 || (pageIndex > (this.model.get('numOfPages') - 1))) {
         $(ev.target).val(this.model.get('page') + 1);
       };
       this.model.set("page", pageIndex, {validate: true});
@@ -188,12 +202,12 @@
     }
   });
 
-  BBPaginator.PaginatorView = Backbone.View.extend({
+  BBLib.PaginatorView = Backbone.View.extend({
     tagName: "div",
 
     className: "paginator",
 
-    initialize: function() {
+    initialize: function(options) {
       this.pageSelector = new PageSelectorView({model: this.model}); 
       this.gotoPage = new GotoPageView({model: this.model}); 
     },
