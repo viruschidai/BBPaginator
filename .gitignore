@@ -8,6 +8,8 @@ lib-cov
 *.gz
 makefile
 *.jar
+*.swp
+*.*~
 
 pids
 logs

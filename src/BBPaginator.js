@@ -5,13 +5,12 @@
 (function() {
   var BBLib;
 
-  if (typeof exports !== "undefined") {
-    BBLib = exports;
+  if (!this.BBLib) {
+    BBLib = this.BBLib = {}
+    BBLib.VERSION = "0.1.0";
   } else {
-    BBLib = this.BBLib = {};
+    BBLib = this.BBLib;
   }
-
-  BBLib.VERSION = "0.1.0";
 
   BBLib.PaginationModel = Backbone.Model.extend({
     defaults: {
@@ -91,7 +90,7 @@
       options = options || {}
       this.windowSize = options.windowSize || this.windowSize;
       _.bindAll(this, 'render');
-      this.model.on('change', this.render)
+      this.model.on('change:numOfPages change:page', this.render, this)
     },
 
     render: function() {
@@ -178,7 +177,7 @@
 
     initialize: function() {
       _.bindAll(this, 'render');
-      this.model.on('change', this.render)
+      this.model.on('change', this.render, this);
     },
 
     render: function() {
@@ -201,6 +200,64 @@
       this.changePage(ev);
     }
   });
+
+  var PageSizeSelectorView = BBLib.PageSizeSelectorView = Backbone.View.extend({
+    tagName: "div",
+      className: "pagesize-selector",
+
+      pageSizeOptions: ['All', 10, 20],
+
+      template: _.template(
+        "<div class='pagination'>"
+        + "<ul class='pagesize-selector'>"
+        + " <% _.each(pageSizes, function(size) { %>"
+        + " <li class='page-size <%= pageSize==size ? \'active\' : \'\' %>'><a href='#'><%= size %></a></li>"
+        + " <% }) %>"
+        + "</ul>"
+        + "</div>"),
+
+      events: {
+        "click .page-size": "onClickChangePageSize"
+      },
+
+      initialize: function() {
+        _.bindAll(this, 'render');
+        this.model.on('change', this.render)
+      },
+
+      onClickChangePageSize: function(ev) {
+        var pageSizeStr = $(ev.target).text().trim();
+        var pageSize = this.convertPageSize(pageSizeStr);
+
+        this.model.set("pageSize", pageSize);
+      },
+
+      convertPageSize: function(pageSizeStr) {
+        var pageSize = 0;
+
+        if (pageSizeStr == "All") {
+          pageSize = 0;
+        } else {
+          pageSize = parseInt(pageSizeStr);
+        };
+
+        return pageSize;
+      },
+
+      render: function() {
+        this.$el.empty();
+        var pageSize = this.model.get("pageSize");
+
+        var pageSizeInfo = {
+          pageSizes: this.pageSizeOptions,
+          pageSize: pageSize === 0 ? "All" : pageSize
+        };
+
+        this.$el.html(this.template(pageSizeInfo));
+        return this;
+      }
+  });
+
 
   BBLib.PaginatorView = Backbone.View.extend({
     tagName: "div",

@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Demo</title>
+    <title>Demo-Use it as jQuery plugin</title>
     <meta charset="utf-8" />
-    <link href="./thirdparties/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="./thirdparties/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
-    <link href="./css/BBPaginator.css" rel="stylesheet">
+    <link href="../src/BBPaginator.css" rel="stylesheet">
+    <style type="text/css">
+      .container{
+        padding: 60px;
+        width: 600px;
+      }
+    </style>
     <script type='text/javascript' src='./thirdparties/jquery/jquery-1.10.1.min.js'></script>
     <script type='text/javascript' src='./thirdparties/underscore/underscore-min.js'></script>
     <script type='text/javascript' src='./thirdparties/backbone/backbone.js'></script>
-    <script type='text/javascript' src='./thirdparties/bootstrap/js/bootstrap.min.js'></script>
-    <!--<script type='text/javascript' src='../src/BBPaginator.js'></script>-->
-    <!--<script type='text/javascript' src='../src/jQuery-paginator.js'></script>-->
     <script type='text/javascript' src='../build/jQuery-BBPaginator-0.1.0.min.js'></script>
 
 </head>
 <body>
   <div class="container" style="margin:100px">
+    <h1>Use it as a jQuery plugin</h1>
     <div class="pages">
-      <h1>This is on page 1</h1>
+      <h2>This is on page 1</h2>
     </div>
     <div class="paginator">
     </div>
@@ -27,7 +29,7 @@
 <script type="text/javascript">
   $('.paginator').paginator({
     onPageChange: function(e, page) {
-      $('.pages h1').html('This is on page ' + (page + 1));
+      $('.pages h2').html('This is on page ' + (page + 1));
     }
   });
 </script>
